@@ -24,10 +24,26 @@ const io = require("socket.io")(server,{
     }
 })
 
-io.on("Connection",(socket)=>{
+io.on("connection",(socket)=>{
    console.log("New Client Connected")
 
    socket.emit("connected","Backend Connected to Frontend")
+
+   socket.on("create",(data)=>{
+    
+     let newItem= new Item({
+        name: data.name,
+        description:data.description
+     })
+    newItem.save()
+
+    io.emit("created",newItem)
+   });
+
+   socket.on("read",async()=>{
+    let all = await Item.find({})
+    socket.emit("read",all)
+   })
 
 })
 
